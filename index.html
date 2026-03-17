@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리 수계의 담수어 퀴즈</title>
+<meta name="description" content="한국 하천과 저수지에 사는 담수어 20종 — 특징과 서식지로 맞혀봐">
+
+<!-- Open Graph (카카오톡·인스타·페이스북 미리보기) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="우리 수계의 담수어 퀴즈 🐟">
+<meta property="og:description" content="한국 담수어 20종, 특징과 서식지로 맞혀봐. 비영리 교육 목적으로 제작했습니다.">
+<meta property="og:image" content="https://qphj0401-ui.github.io/aqua-quiz/thumbnail.png">
+<meta property="og:url" content="https://qphj0401-ui.github.io/aqua-quiz/">
+<meta property="og:locale" content="ko_KR">
+
+<!-- 트위터 카드 -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="우리 수계의 담수어 퀴즈 🐟">
+<meta name="twitter:description" content="한국 담수어 20종, 특징과 서식지로 맞혀봐.">
+<meta name="twitter:image" content="https://qphj0401-ui.github.io/aqua-quiz/thumbnail.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c0: #060e08; --c1: #0b1a0e; --c2: #112214;
+  --glass: rgba(255,255,255,0.82);
+  --line: rgba(0,150,130,0.15);
+  --line2: rgba(0,150,130,0.25);
+  --p: #009688; --p2: #00796b; --p3: #004d40;
+  --acc: #26c6b0;
+  --tx: #00332b; --mu: #00695c; --mu2: #00897b;
+  --ok: #00897b; --bad: #c62828;
+  --r: 18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  color:var(--tx);
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%,rgba(255,255,255,0.9) 0%,transparent 60%),
+    radial-gradient(ellipse 70% 60% at 80% 100%,rgba(0,188,212,0.18) 0%,transparent 60%),
+    linear-gradient(160deg,#c8eff0 0%,#a7ddd8 25%,#7ecdc6 55%,#4db8b0 100%);
+  min-height:100vh;
+  padding-bottom:calc(32px + env(safe-area-inset-bottom,0px));
+}
+
+/* 물고기 canvas */
+#fishCanvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* 배경 */
+.bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+
+.waterline{position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.9) 50%,transparent);animation:wline 6s ease-in-out infinite}
+.caustic{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:120%;height:280px;background:radial-gradient(ellipse 70% 100% at 50% 0%,rgba(255,255,255,0.7) 0%,rgba(200,240,240,0.4) 40%,transparent 70%);animation:cMove 9s ease-in-out infinite alternate}
+.caustic2{position:absolute;top:-20px;left:20%;width:90%;height:180px;background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(255,255,255,0.45) 0%,transparent 70%);animation:cMove2 13s ease-in-out infinite alternate}
+.bubble{position:absolute;bottom:-100px;border-radius:999px;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.85),rgba(200,240,240,0.3));border:1px solid rgba(255,255,255,0.6);animation:bUp var(--d,18s) var(--dl,0s) linear infinite}
+.b1{left:7%;width:9px;height:9px;--d:20s;--dl:0s}
+.b2{left:19%;width:6px;height:6px;--d:17s;--dl:2.5s}
+.b3{left:34%;width:11px;height:11px;--d:22s;--dl:5s}
+.b4{left:52%;width:7px;height:7px;--d:19s;--dl:1s}
+.b5{left:67%;width:5px;height:5px;--d:16s;--dl:3.5s}
+.b6{left:81%;width:10px;height:10px;--d:21s;--dl:7s}
+.b7{left:91%;width:7px;height:7px;--d:18s;--dl:4s}
+.b8{left:44%;width:5px;height:5px;--d:24s;--dl:9s}
+.weed{position:absolute;bottom:0;opacity:0.22}
+.wl{left:-10px;width:130px;height:320px;animation:swL 8s ease-in-out infinite;transform-origin:bottom center}
+.wr{right:-10px;width:140px;height:360px;animation:swR 10s ease-in-out infinite;transform-origin:bottom center}
+.wl2{left:50px;width:90px;height:240px;opacity:0.09;animation:swL 11s ease-in-out infinite 1.5s;transform-origin:bottom center}
+.wr2{right:55px;width:100px;height:260px;opacity:0.08;animation:swR 9s ease-in-out infinite 2s;transform-origin:bottom center}
+
+@keyframes wline{0%,100%{opacity:0.5;transform:scaleX(1)}50%{opacity:0.9;transform:scaleX(1.04)}}
+@keyframes cMove{0%{transform:translateX(-50%) scaleX(1);opacity:0.7}50%{transform:translateX(-46%) scaleX(1.08);opacity:1}100%{transform:translateX(-54%) scaleX(0.95);opacity:0.6}}
+@keyframes cMove2{0%{transform:translateX(0) scaleX(1);opacity:0.5}100%{transform:translateX(8%) scaleX(1.1);opacity:0.9}}
+@keyframes bUp{0%{transform:translateY(0) translateX(0);opacity:0}8%{opacity:0.45}90%{opacity:0.25}100%{transform:translateY(-105vh) translateX(12px);opacity:0}}
+@keyframes swL{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(2.5deg)}}
+@keyframes swR{0%,100%{transform:rotate(2deg)}50%{transform:rotate(-3deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes glow{0%{box-shadow:0 0 0 rgba(0,137,123,0)}50%{box-shadow:0 0 28px rgba(0,137,123,0.35)}100%{box-shadow:0 0 18px rgba(0,137,123,0.2)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+
+/* 레이아웃 */
+.wrap{position:relative;z-index:1;max-width:740px;margin:0 auto;padding:14px 14px calc(80px + env(safe-area-inset-bottom,0px))}
+
+/* 네비 */
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px;margin-bottom:20px;background:rgba(255,255,255,0.75);border:.5px solid var(--line2);border-radius:20px;backdrop-filter:blur(16px);position:sticky;top:12px;z-index:10;box-shadow:0 4px 20px rgba(0,100,90,0.1)}
+.tab{padding:10px 6px;border-radius:13px;text-align:center;font-size:12px;font-weight:700;color:var(--mu);cursor:pointer;transition:all .2s}
+.tab.active{background:rgba(0,150,130,0.15);color:var(--p2);border:.5px solid rgba(0,150,130,0.3)}
+
+/* 화면 */
+.screen{display:none}
+.screen.active{display:block;animation:fadeIn .3s ease}
+
+/* 카드 */
+.card{background:rgba(255,255,255,0.88);border:.5px solid var(--line2);border-radius:24px;backdrop-filter:blur(18px);overflow:hidden;box-shadow:0 8px 40px rgba(0,100,90,0.12),inset 0 1px 0 rgba(255,255,255,0.9);animation:cardIn .35s ease}
+.card-body{padding:24px 20px}
+
+/* 홈 */
+.home-hero{text-align:center;padding:36px 20px 28px}
+.fish-icon{width:80px;height:80px;border-radius:28px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(135deg,rgba(0,150,130,0.15),rgba(38,198,176,0.1));border:.5px solid rgba(0,150,130,0.25);box-shadow:0 8px 32px rgba(0,150,130,0.15)}
+.home-title{margin-top:20px;font-family:'Noto Serif KR',serif;font-size:28px;font-weight:900;letter-spacing:-.01em;line-height:1.3}
+.home-title span{color:var(--p2)}
+.home-sub{margin-top:10px;color:var(--mu);font-size:14px;line-height:1.7}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0}
+.stat-box{padding:14px 10px;border-radius:16px;background:rgba(0,150,130,0.07);border:.5px solid var(--line);text-align:center}
+.stat-label{font-size:10px;font-weight:700;color:var(--mu);letter-spacing:.06em;text-transform:uppercase}
+.stat-value{margin-top:6px;font-size:22px;font-weight:900;color:var(--p2)}
+.stat-value.sm{font-size:14px;line-height:1.4;color:var(--tx)}
+.home-note{margin-top:16px;text-align:center;font-size:12px;color:var(--mu2);line-height:1.7}
+
+/* 버튼 */
+.btn-group{display:grid;gap:10px;margin-top:20px}
+.btn{padding:16px 18px;border-radius:16px;border:.5px solid rgba(0,150,130,0.2);background:rgba(255,255,255,0.6);color:var(--tx);font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.01em}
+.btn:active{transform:scale(0.98)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,#00897b,#00695c);border:none;color:#fff;box-shadow:0 4px 20px rgba(0,137,123,0.35)}
+.btn-primary:hover{background:linear-gradient(135deg,#00a896,#00796b)}
+.btn-secondary{background:rgba(0,150,130,0.08);border:.5px solid rgba(0,150,130,0.2)}
+.btn-ghost{background:transparent;border:.5px solid var(--line);color:var(--mu);font-size:14px}
+
+/* 퀴즈 헤더 */
+.quiz-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.quiz-meta{font-size:13px;font-weight:700;color:var(--mu);letter-spacing:.04em}
+.quiz-title{margin-top:4px;font-size:20px;font-weight:900}
+.score-box{min-width:82px;padding:10px 14px;border-radius:14px;text-align:center;background:rgba(0,150,130,0.1);border:.5px solid rgba(0,150,130,0.25)}
+.score-box small{display:block;font-size:10px;color:var(--mu);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.score-box span{display:block;margin-top:3px;font-size:22px;font-weight:900;color:var(--p2)}
+
+/* 진행바 */
+.progress-wrap{height:6px;border-radius:999px;background:rgba(0,150,130,0.12);overflow:hidden;margin-bottom:14px;border:.5px solid rgba(0,150,130,0.15)}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#00897b,#26c6b0);transition:width .4s ease;border-radius:999px;box-shadow:0 0 8px rgba(0,150,130,0.5)}
+
+/* 퀴즈 카드 */
+.quiz-head{padding:18px 20px 14px;border-bottom:.5px solid rgba(0,150,130,0.12)}
+.quiz-head-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.badge{display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em;background:linear-gradient(90deg,rgba(0,150,130,0.15),rgba(38,198,176,0.1));border:.5px solid rgba(0,150,130,0.25);color:var(--p2)}
+.badge-hint{font-size:11px;color:var(--mu2);font-weight:600}
+.q-text{font-size:18px;font-weight:700;line-height:1.65;white-space:pre-line;letter-spacing:-.01em}
+
+/* 보기 */
+.choices{display:grid;gap:9px;padding:16px 20px 20px}
+.choice{padding:14px 16px;border-radius:14px;border:.5px solid rgba(0,150,130,0.15);background:rgba(255,255,255,0.55);color:var(--tx);text-align:left;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:all .18s}
+.choice:hover:not(:disabled){background:rgba(0,150,130,0.1);border-color:rgba(0,150,130,0.3);transform:translateX(2px)}
+.choice.correct{border-color:var(--ok);background:rgba(0,137,123,0.15);animation:glow .8s ease}
+.choice.wrong{border-color:var(--bad);background:rgba(198,40,40,0.1);animation:shake .4s ease}
+
+/* 피드백 */
+.feedback{display:none;margin:0 20px 20px;padding:16px;border-radius:18px;border:.5px solid rgba(0,150,130,0.15);animation:fadeIn .25s ease}
+.feedback.show{display:block}
+.feedback.correct{background:rgba(0,137,123,0.08);border-color:rgba(0,137,123,0.25)}
+.feedback.wrong{background:rgba(198,40,40,0.07);border-color:rgba(198,40,40,0.2)}
+.fb-title{font-size:15px;font-weight:900}
+.fb-answer{margin-top:5px;font-size:14px;font-weight:700;color:var(--p2)}
+.fb-text{margin-top:8px;font-size:13px;line-height:1.7;color:var(--mu)}
+
+/* 결과 */
+.result-hero{text-align:center;padding:32px 20px 20px}
+.result-icon{width:80px;height:80px;border-radius:28px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(135deg,rgba(201,168,76,0.22),rgba(201,168,76,0.1));border:.5px solid rgba(201,168,76,0.25)}
+.result-title{margin-top:18px;font-family:'Noto Serif KR',serif;font-size:26px;font-weight:900}
+.result-sub{margin-top:8px;color:var(--mu);font-size:14px}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0 0}
+.result-box{padding:14px 10px;border-radius:16px;background:rgba(0,150,130,0.07);border:.5px solid var(--line);text-align:center}
+.result-box .label{font-size:10px;font-weight:700;color:var(--mu);letter-spacing:.05em;text-transform:uppercase}
+.result-box .big{margin-top:6px;font-size:24px;font-weight:900;color:var(--p2)}
+.pct-wrap{text-align:center;margin-top:20px;padding:20px}
+.pct-wrap small{color:var(--mu);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.pct-big{display:block;margin-top:8px;font-size:56px;font-weight:900;color:var(--p2);letter-spacing:-.02em}
+
+/* 오답 */
+.wrong-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.wrong-header h2{font-size:26px;font-weight:900}
+.wrong-header p{margin-top:5px;color:var(--mu);font-size:13px}
+.wrong-list{display:grid;gap:12px}
+.wrong-item{padding:18px 16px;border-radius:20px;background:rgba(255,255,255,0.82);border:.5px solid var(--line);backdrop-filter:blur(12px);box-shadow:0 4px 20px rgba(0,100,90,0.1)}
+.wrong-item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.wrong-q{font-weight:700;line-height:1.6;white-space:pre-line;font-size:14px}
+.wrong-row{margin-top:8px;padding:10px 12px;border-radius:12px;font-size:13px}
+.wrong-row .wlabel{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);margin-bottom:3px}
+.wrong-row .wval{font-weight:600;line-height:1.5}
+.wr-u{background:rgba(198,40,40,0.08);border:.5px solid rgba(198,40,40,0.18)}
+.wr-a{background:rgba(0,137,123,0.1);border:.5px solid rgba(0,137,123,0.2)}
+.wr-e{background:rgba(0,150,130,0.05);border:.5px solid var(--line)}
+.empty-state{text-align:center;padding:40px 20px}
+.empty-state h3{font-size:20px;font-weight:900}
+.empty-state p{margin-top:10px;color:var(--mu);font-size:14px;line-height:1.6}
+
+@media(max-width:640px){
+  .home-title{font-size:24px}
+  .q-text{font-size:16px}
+  .stat-grid,.result-grid{grid-template-columns:1fr}
+  .pct-big{font-size:44px}
+  .quiz-header{align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="waterline"></div>
+  <div class="caustic"></div>
+  <div class="caustic2"></div>
+  <svg class="weed wl" viewBox="0 0 200 400"><path d="M55 400 C44 330,70 260,62 180 C56 110,76 58,68 0" stroke="#00897b" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M85 400 C76 345,100 280,96 220 C92 150,110 90,104 22" stroke="#26c6b0" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+  <svg class="weed wl2" viewBox="0 0 200 400"><path d="M65 400 C58 350,80 290,75 230 C70 165,88 105,82 30" stroke="#00897b" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <svg class="weed wr" viewBox="0 0 200 400"><path d="M145 400 C152 338,126 286,132 228 C140 152,122 98,130 22" stroke="#00897b" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M108 400 C116 348,92 300,100 236 C108 168,88 110,96 38" stroke="#4db6ac" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+  <svg class="weed wr2" viewBox="0 0 200 400"><path d="M120 400 C128 355,106 305,114 248 C122 182,102 125,110 50" stroke="#26c6b0" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <div class="bubble b1"></div><div class="bubble b2"></div><div class="bubble b3"></div>
+  <div class="bubble b4"></div><div class="bubble b5"></div><div class="bubble b6"></div>
+  <div class="bubble b7"></div><div class="bubble b8"></div>
+  <canvas id="fishCanvas"></canvas>
+</div>
+
+<div class="wrap">
+  <nav class="nav">
+    <div class="tab active" data-tab="home">홈</div>
+    <div class="tab" data-tab="quiz">퀴즈</div>
+    <div class="tab" data-tab="result">결과</div>
+    <div class="tab" data-tab="wrong">오답</div>
+  </nav>
+
+  <!-- 홈 -->
+  <section class="screen active" id="home">
+    <div class="card">
+      <div class="home-hero">
+        <div class="fish-icon">🐟</div>
+        <h1 class="home-title">우리 <span>수계의 담수어</span><br>얼마나 알아?</h1>
+        <p class="home-sub">한국 하천과 저수지에 사는 담수어 20종<br>특징과 서식지로 맞혀봐</p>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">어종 수</div><div class="stat-value" id="countFish">20</div></div>
+          <div class="stat-box"><div class="stat-label">출제 방식</div><div class="stat-value sm">랜덤</div></div>
+          <div class="stat-box"><div class="stat-label">오답 노트</div><div class="stat-value sm">저장됨</div></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="btnStart">학습 시작</button>
+          <button class="btn btn-secondary" id="btnRandom">랜덤으로 풀기</button>
+          <button class="btn btn-ghost" id="btnWrongOpen">오답 노트 보기</button>
+        </div>
+        <p class="home-note">비영리 교육 목적으로 제작되었습니다.<br>분류·생태 정보 출처: 국립생물자원관 한반도의 생물다양성<br><a href="https://species.nibr.go.kr" target="_blank" style="color:var(--mu);text-decoration:underline;font-size:11px;">species.nibr.go.kr</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 퀴즈 -->
+  <section class="screen" id="quiz">
+    <div class="quiz-header">
+      <div>
+        <div class="quiz-meta" id="qCount">Q 01 / 20</div>
+        <div class="quiz-title">어종 맞히기</div>
+      </div>
+      <div class="score-box"><small>점수</small><span id="qScore">0</span></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" id="qFill"></div></div>
+    <div class="card">
+      <div class="quiz-head">
+        <div class="quiz-head-row">
+          <div class="badge" id="qBadge">특징 추리</div>
+          <span class="badge-hint">하나 선택</span>
+        </div>
+        <div class="q-text" id="qText"></div>
+      </div>
+      <div class="choices" id="qChoices"></div>
+      <div class="feedback" id="qFeedback">
+        <div class="fb-title" id="fTitle"></div>
+        <div class="fb-answer" id="fAnswer"></div>
+        <div class="fb-text" id="fText"></div>
+        <div class="btn-group" style="margin-top:14px">
+          <button class="btn btn-primary" id="btnNext">다음 문제</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 결과 -->
+  <section class="screen" id="result">
+    <div class="card">
+      <div class="result-hero">
+        <div class="result-icon">🏆</div>
+        <h2 class="result-title">결과 보기</h2>
+        <p class="result-sub" id="resultText">학습 완료</p>
+        <div class="result-grid">
+          <div class="result-box"><div class="label">획득 점수</div><div class="big" id="rScore">0</div></div>
+          <div class="result-box"><div class="label">총 점수</div><div class="big" id="rTotal">0</div></div>
+          <div class="result-box"><div class="label">오답 수</div><div class="big" id="rWrong">0</div></div>
+        </div>
+        <div class="pct-wrap"><small>정답률</small><strong class="pct-big" id="rPct">0%</strong></div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="btnRetryAll">다시 풀기</button>
+          <button class="btn btn-secondary" id="btnRetryWrong">오답만 다시 풀기</button>
+          <button class="btn btn-ghost" id="btnReviewWrong">오답 해설 보기</button>
+          <button class="btn btn-ghost" id="btnHome">홈으로</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 오답 -->
+  <section class="screen" id="wrong">
+    <div class="wrong-header">
+      <div><h2>오답 노트</h2><p>틀린 것만 다시 확인해봐</p></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" id="btnClearWrong" style="padding:11px 14px;color:var(--bad);border-color:rgba(198,40,40,0.25)">초기화</button>
+        <button class="btn btn-ghost" id="btnWrongHome" style="padding:11px 14px">홈</button>
+      </div>
+    </div>
+    <div class="wrong-list" id="wrongList"></div>
+  </section>
+</div>
+
+<script>
+const KEY = 'kfwq_wrongs';
+
+const FISH = [
+  {name:'붕어',order:'잉어목',family:'잉어과',
+   habitat:'유속이 거의 없는 저수지·늪·연못이나 하천 하류의 정수역. 수초가 많고 탁한 환경에서도 생존 가능',
+   feature:'수염이 없고 체고가 높으며 옆으로 납작한 체형이다. 수질 변화에 대한 적응력이 매우 높은 담수어다.'},
+  {name:'잉어',order:'잉어목',family:'잉어과',
+   habitat:'하천 본류와 대형 호소·저수지 등 수심이 깊고 넓은 수역. 저질을 뒤지며 섭이하므로 바닥이 부드러운 곳 선호',
+   feature:'입가에 두 쌍의 수염이 있어 수염 없는 붕어와 구별되며, 대형으로 성장하고 저질을 뒤지며 섭이한다.'},
+  {name:'피라미',order:'잉어목',family:'잉어과',
+   habitat:'하천 중·하류의 여울과 소. 3급수까지 견딜 만큼 수질 적응 범위가 가장 넓어 오염된 도심 하천에서도 출현',
+   feature:'국내 담수 수계에서 가장 흔한 소형 담수어로, 몸 옆에 세로줄무늬가 나타나며 환경 적응력이 매우 강하다.'},
+  {name:'끄리',order:'잉어목',family:'잉어과',
+   habitat:'한강·금강 등 서해로 흐르는 하천 중·하류와 호소. 낙동강 수계에는 1990년대 이후 이식·확산된 외래적 경로로 출현',
+   feature:'아래턱이 W자형으로 튀어나온 것이 특징이며, 물고기와 수서곤충 등을 잡아먹는 강한 육식성 대형 담수어다.'},
+  {name:'갈겨니',order:'잉어목',family:'잉어과',
+   habitat:'하천 중·상류의 여울과 소. 수면 표층에 머무는 경향이 강하며 숲이 우거져 그늘진 구간을 선호',
+   feature:'몸 옆에 굵은 흑색 세로띠가 있어 피라미와 구별된다. 번식기 수컷은 전신이 붉은 혼인색을 띤다.'},
+  {name:'버들치',order:'잉어목',family:'잉어과',
+   habitat:'수온 15℃ 이하의 냉수가 흐르는 산간 계류와 하천 최상류. 오염에 민감해 청정 지역 지표종으로 활용',
+   feature:'소형이며 체형이 가늘고 길다. 수온이 낮고 맑은 냉수 환경에 잘 적응한 담수어다.'},
+  {name:'쉬리',order:'잉어목',family:'잉어과',
+   habitat:'유속이 빠른 하천 중·상류의 자갈 여울부. 바닥을 기듯 헤엄치며 산소 요구량이 높아 수질이 매우 맑은 곳에만 서식',
+   feature:'국내 고유종으로, 체측 중앙에 황색 종대가 있고 그 위로 주황색·보라색·흑남색 줄이 이어지는 화려한 체색이 특징이다.'},
+  {name:'참갈겨니',order:'잉어목',family:'잉어과',
+   habitat:'한강·금강 이남 서해·남해 유입 하천의 중·상류. 갈겨니와 같은 서식지를 공유하나 분포 수계가 다름',
+   feature:'국내 고유종으로 2005년 갈겨니와 분리된 신종이다. 갈겨니보다 체고가 높고 번식기 수컷 혼인색이 더 진하다.'},
+  {name:'납자루',order:'잉어목',family:'잉어과(납자루아과)',
+   habitat:'유속이 느린 하천·저수지 중 말조개·펄조개 등 대형 이매패류가 서식하는 곳. 산란 숙주인 조개의 존재가 필수 조건',
+   feature:'긴 산란관으로 이매패 체내에 산란하는 독특한 번식 전략이 유명하며, 번식기 수컷은 등지느러미에 붉은 띠가 나타난다.'},
+  {name:'줄납자루',order:'잉어목',family:'잉어과(납자루아과)',
+   habitat:'하천 중·하류의 완류 수역 중 이매패류가 서식하는 니사질 바닥. 납자루보다 더 하류 쪽 수역에 분포하는 경향',
+   feature:'체측 중앙에 주둥이부터 미병부까지 이어지는 뚜렷한 암청색 종대가 특징이며, 이매패 속에 산란하는 납자루아과 어류다.'},
+  {name:'각시붕어',order:'잉어목',family:'잉어과(납자루아과)',
+   habitat:'소하천·농수로 등 소규모 완류 수역. 대형 하천보다 작은 수계에 분포하며 이매패류가 있는 곳이 필수 조건',
+   feature:'국내 고유종으로 납자루아과 중 가장 소형이며, 번식기 수컷은 보라~파란 금속광택의 화려한 체색을 띤다.'},
+  {name:'미꾸리',order:'잉어목',family:'미꾸리과',
+   habitat:'논·수로·늪 등 유속이 거의 없는 니질 바닥. 수온·용존산소 변화에 강하며 바닥 진흙 속에 잠입하는 습성',
+   feature:'체단면이 원형에 가깝고 수염(5쌍)이 비교적 짧으며, 니질 속에 몸을 숨기는 습성이 강하다.'},
+  {name:'미꾸라지',order:'잉어목',family:'미꾸리과',
+   habitat:'논·수로·소규모 정수역의 부드러운 저질. 미꾸리보다 좀 더 흐린 물·논도랑에 많으며 식용으로 대량 양식됨',
+   feature:'미꾸리보다 체고가 높고 옆으로 납작하며(측편), 수염(5쌍)이 더 길다. 아가미 외에 장으로도 호흡하는 것이 특징이다.'},
+  {name:'참종개',order:'잉어목',family:'미꾸리과',
+   habitat:'하천 중·상류의 자갈·모래 바닥 저질. 맑고 유속이 있는 곳을 선호하며 바닥을 기며 섭이하는 저서성 어류',
+   feature:'저서성 생활을 하며 체형이 가늘고 길며, 눈 아래에 안하극(소극)이 있는 것이 가장 뚜렷한 특징이다.'},
+  {name:'동사리',order:'망둑어목',family:'동사리과',
+   habitat:'하천 중·하류의 자갈·모래 바닥. 돌 틈이나 바닥에 납작하게 붙어 은신하며 야행성으로 활동',
+   feature:'국내 고유종으로 저서성이 강하며 위장색이 잘 발달해 있다. 과거 농어목으로 분류되었으나 망둑어목으로 재분류되었다.'},
+  {name:'꺽지',order:'농어목',family:'꺽지과',
+   habitat:'하천 중·상류의 맑은 자갈 바닥. 돌 아래에 영역을 형성하고 산란 후 수컷이 알을 단독 보호하는 행동이 특징적',
+   feature:'국내 고유종으로 육식성이 강하며, 체측에 7~8개의 짙은 가로띠가 있다. 산란기에 수컷이 단독으로 알을 지키는 강한 부성애가 특징이다.'},
+  {name:'쏘가리',order:'농어목',family:'꺽지과',
+   habitat:'대형 하천 본류와 호소. 맑고 용존산소가 풍부한 곳을 선호하며 큰 바위·교각 등 은신처 주변에서 어류를 포식',
+   feature:'체측에 불규칙한 흑색 반점이 특징인 대형 담수어로, 주로 어류를 포식하는 육식성이다.'},
+  {name:'메기',order:'메기목',family:'메기과',
+   habitat:'하천 하류·저수지·늪 등 탁하고 유속이 거의 없는 수역. 야행성으로 낮에는 바닥 진흙 속이나 돌 아래에 은신',
+   feature:'입가에 두 쌍의 긴 수염이 있고 야행성이며, 저서 생활에 잘 적응한 대형 담수어다.'},
+  {name:'동자개',order:'메기목',family:'동자개과',
+   habitat:'하천 중·하류와 저수지의 완류 수역. 모래·자갈 바닥을 선호하며 밤에 활동하고 낮에는 돌 아래에 숨음',
+   feature:'수염이 발달한 소형 메기류로, 등지느러미와 가슴지느러미의 극조에 독선이 있으며 야행성이다.'},
+  {name:'가물치',order:'등목어목',family:'가물치과',
+   habitat:'수초가 발달한 연못·저수지·습지. 공기호흡이 가능해 용존산소가 극도로 낮은 환경에서도 생존 가능하며 수면 근처에서 활동',
+   feature:'공기호흡 능력이 뛰어나며 포식성이 강한 대형 담수어로, 2015년 농어목에서 등목어목으로 재분류되었다.'}
+];
+
+// 분류 퀴즈 가능 종: 목+과 조합이 유일한 4종만
+const SOLO = ['동사리','메기','동자개','가물치'];
+
+const state = { mode:'normal', list:[], idx:0, score:0, answered:false, wrongs:[] };
+const $ = id => document.getElementById(id);
+
+const loadWrong = () => { try { return JSON.parse(localStorage.getItem(KEY)||'[]'); } catch { return []; } };
+const saveWrong = arr => localStorage.setItem(KEY, JSON.stringify(arr));
+const updateWrongBtn = () => { $('btnWrongOpen').textContent = `오답 노트 보기 (${loadWrong().length})`; };
+const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; };
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+
+function setScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function makeOptions(fish) {
+  const isCyprinid = fish.order === '잉어목' && fish.family.startsWith('잉어과');
+  let wrong;
+  if (isCyprinid) {
+    const same = FISH.filter(v => v.name !== fish.name && v.family === fish.family).map(v => v.name);
+    const other = FISH.filter(v => v.name !== fish.name && v.family !== fish.family).map(v => v.name);
+    wrong = [...shuffle(same).slice(0,2), ...shuffle(other).slice(0,1)];
+  } else {
+    const same = FISH.filter(v => v.name !== fish.name && v.family === fish.family).map(v => v.name);
+    const sameOrd = FISH.filter(v => v.name !== fish.name && v.order === fish.order && v.family !== fish.family).map(v => v.name);
+    const other = FISH.filter(v => v.name !== fish.name && v.order !== fish.order).map(v => v.name);
+    wrong = [...shuffle(same).slice(0,2), ...shuffle(sameOrd).slice(0,2), ...shuffle(other).slice(0,2)].slice(0,3);
+  }
+  return shuffle([fish.name, ...wrong.slice(0,3)]);
+}
+
+function makeQuestion(fish) {
+  const canClassify = SOLO.includes(fish.name);
+  const types = canClassify
+    ? ['feature','habitat','classification','mixed','fieldNote']
+    : ['feature','habitat','mixed','fieldNote'];
+  const type = pick(types);
+
+  const prompts = {
+    feature: [`다음 설명에 맞는 담수어를 고르세요.\n\n${fish.feature}`, `어떤 어종일까요?\n\n${fish.feature}`],
+    habitat: [`이 서식 환경의 담수어는?\n\n${fish.habitat}`, `하천 조사 중 이 환경에서 채집될 가능성이 높은 어종은?\n\n${fish.habitat}`],
+    classification: [`다음 분류에 해당하는 담수어는?\n\n목: ${fish.order}\n과: ${fish.family}`, `분류 단서로 맞혀봐.\n\n목: ${fish.order}\n과: ${fish.family}`],
+    mixed: canClassify
+      ? [`두 단서를 모두 만족하는 어종은?\n\n① 분류: ${fish.order} ${fish.family}\n② 특징: ${fish.feature}`, `단서를 종합해 골라봐.\n\n① ${fish.order} ${fish.family}\n② ${fish.feature}`]
+      : [`두 단서를 모두 만족하는 어종은?\n\n① 특징: ${fish.feature}\n② 서식지: ${fish.habitat}`, `단서를 종합해 골라봐.\n\n① ${fish.feature}\n② ${fish.habitat}`],
+    fieldNote: [`현장 조사 기록이야.\n환경: ${fish.habitat}\n\n관찰된 특징: ${fish.feature}\n\n가장 알맞은 종은?`, `담수어류 조사 기록을 보고 추리해봐.\n\n• 환경: ${fish.habitat}\n• 특징: ${fish.feature}`]
+  };
+  const badges = { feature:'특징 추리', habitat:'서식 환경 추론', classification:'분류 퀴즈', mixed:'종합 추리', fieldNote:'현장 노트' };
+  const explains = {
+    feature: `${fish.name}의 특징: "${fish.feature}" / 서식 환경: ${fish.habitat} / 분류: ${fish.order} ${fish.family}`,
+    habitat: `${fish.name}는 ${fish.habitat}에 서식하며, "${fish.feature}"라는 특징이 있어.`,
+    classification: `${fish.name}는 ${fish.order} ${fish.family}에 속해. 특징: "${fish.feature}", 서식지: ${fish.habitat}`,
+    mixed: `${fish.name}는 특징과 서식 환경을 함께 보면 구별이 쉬워.`,
+    fieldNote: `${fish.name}는 서식 환경과 형태 단서를 같이 봐야 잘 맞힐 수 있어.`
+  };
+  return { fish, type, badge: badges[type], text: pick(prompts[type]), explanation: explains[type], answer: fish.name, options: makeOptions(fish) };
+}
+
+function buildList(mode) {
+  const src = mode === 'wrong' ? loadWrong().map(v => v.fish) : FISH;
+  const base = (mode === 'random' || mode === 'wrong') ? shuffle(src) : [...src];
+  return base.map(makeQuestion);
+}
+
+function start(mode) {
+  if (mode === 'wrong' && loadWrong().length === 0) { renderWrong(); setScreen('wrong'); return; }
+  state.mode = mode; state.list = buildList(mode); state.idx = 0;
+  state.score = 0; state.answered = false; state.wrongs = [];
+  renderQ(); setScreen('quiz');
+}
+
+function renderQ() {
+  const q = state.list[state.idx];
+  const total = state.list.length;
+  $('qCount').textContent = `Q ${String(state.idx+1).padStart(2,'0')} / ${total}`;
+  $('qScore').textContent = state.score;
+  $('qFill').style.width = `${((state.idx+1)/total)*100}%`;
+  $('qBadge').textContent = q.badge;
+  $('qText').textContent = q.text;
+  $('qFeedback').className = 'feedback';
+  $('fTitle').textContent = ''; $('fAnswer').textContent = ''; $('fText').textContent = '';
+  $('btnNext').textContent = state.idx === total-1 ? '결과 보기' : '다음 문제';
+  const choices = $('qChoices');
+  choices.innerHTML = '';
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'choice'; btn.textContent = opt;
+    btn.addEventListener('click', () => answer(opt, btn));
+    choices.appendChild(btn);
+  });
+  state.answered = false;
+}
+
+function answer(opt, btn) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = state.list[state.idx];
+  const ok = opt === q.answer;
+  [...$('qChoices').children].forEach(b => {
+    b.disabled = true;
+    if (b.textContent === q.answer) b.classList.add('correct');
+    if (!ok && b.textContent === opt) b.classList.add('wrong');
+  });
+  if (ok) {
+    state.score += 10;
+    $('qScore').textContent = state.score;
+    showFeedback('correct','정답!','',q.explanation);
+  } else {
+    const rec = { timestamp:Date.now(), fish:q.fish, questionText:q.text, userAnswer:opt, answer:q.answer, explanation:q.explanation, type:q.badge };
+    state.wrongs.push(rec);
+    saveWrong([rec,...loadWrong()].slice(0,100));
+    updateWrongBtn();
+    showFeedback('wrong','오답',`정답: ${q.answer}`,q.explanation);
+  }
+}
+
+function showFeedback(type, title, ans, text) {
+  $('qFeedback').className = `feedback show ${type}`;
+  $('fTitle').textContent = title;
+  $('fAnswer').textContent = ans;
+  $('fText').textContent = text;
+}
+
+function next() {
+  if (!state.answered) return;
+  if (state.idx === state.list.length-1) { renderResult(); setScreen('result'); return; }
+  state.idx++;
+  renderQ();
+}
+
+function renderResult() {
+  const total = state.list.length * 10;
+  const pct = total ? Math.round((state.score/total)*100) : 0;
+  const msgs = { normal:'다 풀었어! 어땠어?', random:'랜덤 학습 완료.', wrong:'오답 재도전 완료.' };
+  $('resultText').textContent = msgs[state.mode] || '완료';
+  $('rScore').textContent = state.score;
+  $('rTotal').textContent = total;
+  $('rWrong').textContent = state.wrongs.length;
+  $('rPct').textContent = `${pct}%`;
+  const hasWrong = loadWrong().length > 0;
+  $('btnRetryWrong').disabled = !hasWrong;
+  $('btnReviewWrong').disabled = !hasWrong;
+}
+
+function renderWrong() {
+  const list = loadWrong();
+  const el = $('wrongList');
+  el.innerHTML = '';
+  if (!list.length) {
+    el.innerHTML = '<div class="card"><div class="card-body empty-state"><h3>오답이 없어 👍</h3><p>아직 풀지 않았거나 모두 맞혔어.</p></div></div>';
+    return;
+  }
+  list.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'wrong-item';
+    d.innerHTML = `
+      <div class="wrong-item-head">
+        <div class="badge">오답 ${i+1}</div>
+        <div style="font-size:11px;color:var(--mu);font-weight:700">${item.type}</div>
+      </div>
+      <div class="wrong-q">${item.questionText}</div>
+      <div class="wrong-row wr-u"><div class="wlabel">내 답</div><div class="wval">${item.userAnswer}</div></div>
+      <div class="wrong-row wr-a"><div class="wlabel">정답</div><div class="wval">${item.answer}</div></div>
+      <div class="wrong-row wr-e"><div class="wlabel">해설</div><div class="wval">${item.explanation}</div></div>
+    `;
+    el.appendChild(d);
+  });
+}
+
+function home() { setScreen('home'); updateWrongBtn(); }
+
+function clearWrong() {
+  localStorage.removeItem(KEY);
+  updateWrongBtn();
+  renderWrong();
+}
+
+// 이벤트
+$('btnStart').addEventListener('click', () => start('normal'));
+$('btnRandom').addEventListener('click', () => start('random'));
+$('btnWrongOpen').addEventListener('click', () => { renderWrong(); setScreen('wrong'); });
+$('btnNext').addEventListener('click', next);
+$('btnRetryAll').addEventListener('click', () => start(state.mode === 'random' ? 'random' : 'normal'));
+$('btnRetryWrong').addEventListener('click', () => start('wrong'));
+$('btnReviewWrong').addEventListener('click', () => { renderWrong(); setScreen('wrong'); });
+$('btnHome').addEventListener('click', home);
+$('btnWrongHome').addEventListener('click', home);
+$('btnClearWrong').addEventListener('click', clearWrong);
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.dataset.tab === 'wrong') renderWrong();
+    setScreen(tab.dataset.tab);
+  });
+});
+
+// 물고기 canvas
+(function(){
+  const canvas = document.getElementById('fishCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const COLORS = [
+    {body:'#00897b', fin:'#00695c', belly:'#4db6ac'},
+    {body:'#26c6b0', fin:'#00897b', belly:'#80cbc4'},
+    {body:'#009688', fin:'#00796b', belly:'#4db6ac'},
+    {body:'#00796b', fin:'#004d40', belly:'#26c6b0'},
+    {body:'#4db6ac', fin:'#00897b', belly:'#b2dfdb'},
+  ];
+
+  function createFish(spreadX){
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    const size = 18 + Math.random() * 28;
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    // speed는 항상 양수 — dir로 곱해서 x 이동에 사용
+    const speed = 0.5 + Math.random() * 0.7;
+    const x = spreadX !== undefined
+      ? spreadX
+      : (dir === 1 ? -size * 3 : canvas.width + size * 3);
+    return {
+      x,
+      y: canvas.height * (0.12 + Math.random() * 0.72),
+      size, speed, dir, color,
+      wave: Math.random() * Math.PI * 2,
+      waveSpeed: 0.035 + Math.random() * 0.025,
+      waveAmp: 1.2 + Math.random() * 1.8,
+      tailPhase: Math.random() * Math.PI * 2,
+      opacity: 0.2 + Math.random() * 0.22,
+      drift: (Math.random() - 0.5) * 0.12,
+    };
+  }
+
+  function drawFish(f){
+    ctx.save();
+    ctx.globalAlpha = f.opacity;
+
+    // 상하 파동은 y에만, x는 순수 전진
+    ctx.translate(f.x, f.y + Math.sin(f.wave) * f.waveAmp);
+
+    // dir=1(오른쪽 이동)이면 머리를 오른쪽으로 → scale(-1,1)
+    // dir=-1(왼쪽 이동)이면 머리를 왼쪽으로 → scale(1,1)
+    ctx.scale(-f.dir, 1);
+
+    const s = f.size;
+    const tw = Math.sin(f.tailPhase) * 0.25; // 꼬리 흔들림 (시각 효과만)
+
+    // 꼬리 — 몸통 뒤(오른쪽)에 위치, 흔들림
+    ctx.save();
+    ctx.translate(s * 0.72, 0);
+    ctx.rotate(tw);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(s * 0.65, -s * 0.42);
+    ctx.lineTo(s * 0.65, s * 0.42);
+    ctx.closePath();
+    ctx.fillStyle = f.color.fin;
+    ctx.fill();
+    ctx.restore();
+
+    // 등지느러미
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.08, -s * 0.28);
+    ctx.quadraticCurveTo(s * 0.2, -s * 0.58, s * 0.42, -s * 0.26);
+    ctx.closePath();
+    ctx.fillStyle = f.color.fin;
+    ctx.globalAlpha = f.opacity * 0.65;
+    ctx.fill();
+    ctx.globalAlpha = f.opacity;
+
+    // 가슴지느러미
+    ctx.beginPath();
+    ctx.moveTo(s * 0.05, s * 0.08);
+    ctx.quadraticCurveTo(s * 0.22, s * 0.42, s * 0.38, s * 0.16);
+    ctx.closePath();
+    ctx.fillStyle = f.color.fin;
+    ctx.globalAlpha = f.opacity * 0.55;
+    ctx.fill();
+    ctx.globalAlpha = f.opacity;
+
+    // 몸통
+    ctx.beginPath();
+    ctx.ellipse(0, 0, s * 0.72, s * 0.3, 0, 0, Math.PI * 2);
+    ctx.fillStyle = f.color.body;
+    ctx.fill();
+
+    // 배 (밝은 부분)
+    ctx.beginPath();
+    ctx.ellipse(s * 0.05, s * 0.1, s * 0.46, s * 0.15, 0.25, 0, Math.PI * 2);
+    ctx.fillStyle = f.color.belly;
+    ctx.globalAlpha = f.opacity * 0.4;
+    ctx.fill();
+    ctx.globalAlpha = f.opacity;
+
+    // 비늘 선
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.12, -s * 0.04);
+    ctx.lineTo(s * 0.44, -s * 0.04);
+    ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+
+    // 눈 — 머리 쪽(왼쪽)
+    ctx.beginPath();
+    ctx.arc(-s * 0.44, -s * 0.05, s * 0.08, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(-s * 0.43, -s * 0.05, s * 0.045, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,50,43,0.75)';
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // 화면 전체에 분산 배치
+  const fishes = Array.from({length:7}, (_, i) => {
+    const f = createFish((canvas.width / 7) * i + Math.random() * (canvas.width / 7));
+    return f;
+  });
+
+  function animate(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    fishes.forEach(f => {
+      // x는 항상 진행방향(dir)으로만 전진
+      f.x += f.speed * f.dir;
+      f.y += f.drift;
+      f.wave += f.waveSpeed;
+      f.tailPhase += 0.07;
+
+      // 화면 밖 → 반대편에서 새 물고기
+      const outRight = f.dir === 1 && f.x > canvas.width + f.size * 3;
+      const outLeft  = f.dir === -1 && f.x < -f.size * 3;
+      if(outRight || outLeft) Object.assign(f, createFish());
+
+      // y 경계
+      if(f.y < canvas.height * 0.08) f.drift = Math.abs(f.drift);
+      if(f.y > canvas.height * 0.92) f.drift = -Math.abs(f.drift);
+
+      drawFish(f);
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+})();
+
+</script>
+</body>
+</html>
